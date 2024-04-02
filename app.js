@@ -5,6 +5,7 @@ const dotenv = require('dotenv').config();
 const multer = require('multer');
 
 const authRoutes = require('./routes/auth');
+const profileRoutes = require('./routes/profile');
 const feedRoutes = require('./routes/feed');
 
 
@@ -14,9 +15,10 @@ const uploader = multer({storage: multer.diskStorage({})});    // empty - we can
 
 app.use(bodyParser.json());
 app.use('/auth', uploader.single('image'));
-app.use('/feed', uploader.single('files'));
+app.use('/profile', uploader.single('files'));
 
 app.use('/auth', authRoutes);
+app.use('/profile', profileRoutes);
 app.use('/feed', feedRoutes);
 
 app.use((error, req, res, next) => {

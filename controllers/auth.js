@@ -14,18 +14,17 @@ exports.postSignup = async (req, res, next) => {
             error.data = errors.array();
             throw error;
         }
-        if(!req.file){
-            const error = new Error('No image provided');
-            error.statusCode = 422;
-            throw error;
+        let imageUrl = '';
+        const image = req.file;
+        if(image){
+            const cloudImage = await uploadHelper.fileUpload(image.path);
+            imageUrl = cloudImage.secure_url;
         }
-        const cloudImage = await uploadHelper.fileUpload(req.file.path);
         const password = req.body.password;
         const email = req.body.email;
         const username = req.body.username;
         const fullname = req.body.fullname;
         const DOB = req.body.DOB;
-        const imageUrl = cloudImage.secure_url;
         const hashedPassword = await bcrypt.hash(password, 12);
         const user = new User({
             email: email, 
