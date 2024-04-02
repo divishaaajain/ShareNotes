@@ -28,6 +28,12 @@ exports.getNotes = async (req, res, next) => {
 };
 
 exports.postNotes = async (req, res, next) => {
+    const userId = req.params.userId;
+    if(userId.toString() !== req.userId){
+        const error = new Error('Unauthorized');
+        error.statusCode = 403;
+        throw error; 
+}
     try {
         const errors = validationResult(req);
         if(!errors.isEmpty()){

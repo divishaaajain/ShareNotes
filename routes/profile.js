@@ -11,7 +11,7 @@ const router = express.Router();
 router.get('/notes/:userId', isAuth, profileController.getNotes);
 
 // User can add a new post
-router.post('/notes', isAuth, [
+router.post('/notes/:userId', isAuth, [
     body('title', 'Title must be between 3 to 30 characters')
         .trim()
         .isString()
