@@ -13,7 +13,7 @@ exports.getNotes = async (req, res, next) => {
             .sort({createdAt: -1})
             .skip((currentPage-1)*NOTES_PER_PAGE)
             .limit(NOTES_PER_PAGE)
-        if (!notes) {
+        if (!notes.length>0) {
             const error = new Error ('Notes not found');
             error.statusCode = 404;
             throw error;
