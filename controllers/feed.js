@@ -5,7 +5,7 @@ const NOTES_PER_PAGE = 2;
 exports.getNotes = async (req, res, next) => {
     try {
         const currentPage = req.query.page || 1;
-        const totalDocuments = await Notes.find().countDocument();
+        const totalDocuments = await Notes.find().countDocuments();
         const totalPages = Math.ceil(totalDocuments/NOTES_PER_PAGE);
         const notes = await Notes.find()
             .populate('userId', 'username, imageUrl')
@@ -35,7 +35,7 @@ exports.getNotes = async (req, res, next) => {
 exports.searchNotes = async (req, res, next) => {
     try {
         const currentPage = req.query.page || 1;
-        const totalDocuments = await Notes.find().countDocument();
+        const totalDocuments = await Notes.find().countDocuments();
         const totalPages = Math.ceil(totalDocuments/NOTES_PER_PAGE);
         const tags = req.body.tags;
         const notes = await Notes.find({tags: {$in: tags}})

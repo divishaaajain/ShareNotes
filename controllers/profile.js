@@ -9,7 +9,7 @@ exports.getNotes = async (req, res, next) => {
     try {
         const NOTES_PER_PAGE = 2;
         const currentPage = req.query.page;
-        const totalDocuments = await Notes.find().countDocument();
+        const totalDocuments = await Notes.find().countDocuments();
         const totalPages = Math.ceil(totalDocuments/NOTES_PER_PAGE);
         const notes = await Notes.find({userId : userId})
             .sort({createdAt: -1})
