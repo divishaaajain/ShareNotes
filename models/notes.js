@@ -20,7 +20,7 @@ notesSchema = new mongoose.Schema({
     tags: {
         type: Array
     },
-    userId: {
+    user_id: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true

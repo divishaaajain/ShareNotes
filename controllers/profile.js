@@ -5,17 +5,17 @@ const uploadHelper = require('../helpers/upload');
 
 
 exports.getNotes = async (req, res, next) => {
-    const userId = req.params.userId;
+    const user_id = req.params.user_id;
     try {
         const NOTES_PER_PAGE = 2;
         const currentPage = req.query.page;
         const totalDocuments = await Notes.find().countDocuments();
         const totalPages = Math.ceil(totalDocuments/NOTES_PER_PAGE);
-        const notes = await Notes.find({userId : userId})
+        const notes = await Notes.find({user_id : user_id}, {"_id": 0, __v: 0})
             .sort({createdAt: -1})
             .skip((currentPage-1)*NOTES_PER_PAGE)
             .limit(NOTES_PER_PAGE)
-        if (!notes.length>0) {
+        if (!notes) {
             const error = new Error ('Notes not found');
             error.statusCode = 404;
             throw error;
@@ -37,8 +37,8 @@ exports.getNotes = async (req, res, next) => {
 
 exports.postNotes = async (req, res, next) => {
     try {
-        const userId = req.params.userId;
-        if(userId.toString() !== req.userId){
+        const user_id = req.params.user_id;
+        if(user_id.toString() !== req.user_id){
             const error = new Error('Unauthorized');
             error.statusCode = 403;
             throw error; 
@@ -68,12 +68,12 @@ exports.postNotes = async (req, res, next) => {
         const title = req.body.title;
         const description = req.body.description;
         const filesUrl = cloudFile.secure_url;
-        const notes = new Notes({title: title, desciption: description, tags: tags, filesUrl: filesUrl, userId: req.userId});
+        const notes = new Notes({title: title, desciption: description, tags: tags, filesUrl: filesUrl, user_id: req.user_id});
         const savedNotes = await notes.save();
         if(!savedNotes) {
             throw new Error();
         }
-        res.status(201).json({message: "File uploaded successfully", notes: savedNotes, creator: req.userId});
+        res.status(201).json({message: "File uploaded successfully", notes: savedNotes, creator: req.user_id});
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;
@@ -99,10 +99,10 @@ exports.editPost = async (req, res, next) => {
                 throw error;                                                
             }
         });
-        const notesId = req.params.notesId;
+        const notes_id = req.params.notes_id;
         // only user who created the notes can update them
-        const notes = await Notes.findOne({_id: notesId});
-        if(req.userId !== notes.userId.toString()) {
+        const notes = await Notes.findOne({_id: notes_id});
+        if(req.user_id !== notes.user_id.toString()) {
             const error = new Error('Unauthorized');
             error.statusCode = 403;
             throw error;
@@ -127,7 +127,7 @@ exports.editPost = async (req, res, next) => {
         if (!updatedNotes) {
             throw err;
         }
-        return res.status(200).json({message: 'Notes file updated successfully', userId: notes.userId.toString(), notes: updatedNotes});
+        return res.status(200).json({message: 'Notes file updated successfully', user_id: notes.user_id.toString(), notes: updatedNotes});
     } catch (err) {
         if(!err.statusCode) {
             err.statusCode = 500;
@@ -137,19 +137,19 @@ exports.editPost = async (req, res, next) => {
 };
 
 exports.deletePost = async (req, res, next) => {
-    const notesId = req.params.notesId;
-    const notes = await Notes.findOne({_id: notesId});
+    const notes_id = req.params.notes_id;
+    const notes = await Notes.findOne({_id: notes_id});
     if(!notes) {
         const error = new Error('Notes not found')
         error.statusCode = 404;
         throw error;
     }
-    if(req.userId !== notes.userId.toString()) {
+    if(req.user_id !== notes.user_id.toString()) {
         const error = new Error('Not authorized to perform this action')
         error.statusCode = 403;
         throw error;
     }
-    const result = await Notes.findByIdAndDelete({_id: notesId});
+    const result = await Notes.findByIdAndDelete({_id: notes_id});
     if (!result){
         throw err;
     }

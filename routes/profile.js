@@ -8,10 +8,10 @@ const isAuth = require('../middleware/is-auth');
 const router = express.Router();
 
 // User can get all his posts
-router.get('/notes/:userId', isAuth, profileController.getNotes);
+router.get('/notes/:user_id', isAuth, profileController.getNotes);
 
 // User can add a new post
-router.post('/notes/:userId', isAuth, [
+router.post('/notes/:user_id', isAuth, [
     body('title', 'Title must be between 3 to 30 characters')
         .trim()
         .isString()
@@ -39,7 +39,7 @@ router.post('/notes/:userId', isAuth, [
 ], profileController.postNotes);
 
 // User can update his post
-router.put('/notes/:notesId', isAuth, [
+router.put('/notes/:notes_id', isAuth, [
     body('title', 'Title must be between 3 to 30 characters')
         .trim()
         .isString()
@@ -66,6 +66,6 @@ router.put('/notes/:notesId', isAuth, [
         })
 ], profileController.editPost);
 
-router.delete('/notes/:notesId', isAuth, profileController.deletePost);
+router.delete('/notes/:notes_id', isAuth, profileController.deletePost);
 
 module.exports = router;

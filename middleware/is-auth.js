@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
         throw error;
     }
     const token = tokenHeader.split(' ')[1];
-    jwt.verify(token, 'somereallyprivatekey', (err, decoded) =>{
+    jwt.verify(token, `${process.env.JWT_PRIVATE_KEY}`, (err, decoded) =>{
         if(err) {                              // technical error
             throw err;                           
         }
@@ -17,7 +17,7 @@ module.exports = (req, res, next) => {
             error.statusCode = 401;
             throw error;
         }
-        req.userId = decoded.userId;
+        req.user_id = decoded.user_id;
         next();
     })    
 };

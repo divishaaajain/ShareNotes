@@ -4,16 +4,18 @@ const NOTES_PER_PAGE = 2;
 
 exports.getNotes = async (req, res, next) => {
     try {
+
         const currentPage = req.query.page || 1;
         const totalDocuments = await Notes.find().countDocuments();
         const totalPages = Math.ceil(totalDocuments/NOTES_PER_PAGE);
-        const notes = await Notes.find()
-            .populate('userId', 'username, imageUrl')
+        const notes = await Notes.find({}, {"_id": 0, __v: 0})
+            .populate('user_id', 'username, imageUrl')
             .sort({createdAt: -1})
             .skip((currentPage-1)*NOTES_PER_PAGE)
             .limit(NOTES_PER_PAGE);
-        if (!notes.length>0) {
-            const error = new Error('Not not found');
+            console.log(notes)
+        if (!notes) {
+            const error = new Error('Notes not found');
             error.statusCode = 404;
             throw err;
         }
@@ -38,12 +40,12 @@ exports.searchNotes = async (req, res, next) => {
         const totalDocuments = await Notes.find().countDocuments();
         const totalPages = Math.ceil(totalDocuments/NOTES_PER_PAGE);
         const tags = req.body.tags;
-        const notes = await Notes.find({tags: {$in: tags}})
-            .populate('userId', 'username, imageUrl')
+        const notes = await Notes.find({tags: {$in: tags}}, {"_id": 0, __v: 0})
+            .populate('user_id', 'username, imageUrl')
             .sort({createdAt: -1})
             .skip((currentPage-1)*NOTES_PER_PAGE)
             .limit(NOTES_PER_PAGE);
-        if (!notes.length>0) {
+        if (!notes) {
             const error = new Error('Notes not found');
             error.statusCode = 404;
             throw error;

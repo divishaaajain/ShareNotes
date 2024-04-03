@@ -38,7 +38,7 @@ exports.postSignup = async (req, res, next) => {
         if (!savedUser) {
             next(new Error('Failed to signup'));
         }
-        return res.status(201).json({ message: "Signed up successfully", userId: savedUser._id.toString() });
+        return res.status(201).json({ message: "Signed up successfully", user_id: savedUser._id.toString() });
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;
@@ -62,11 +62,11 @@ exports.postLogin = async (req, res, next) => {
         if (result) {
             const token = jwt.sign({
                 email: user.email,
-                userId: user._id.toString()
-            }, 'somereallyprivatekey', {
+                user_id: user._id.toString()
+            }, `${process.env.JWT_PRIVATE_KEY}`, {
                 expiresIn: '1h'
             });
-            return res.status(200).json({message: "User logged in", userId: user._id.toString(), token: token});   
+            return res.status(200).json({message: "User logged in", user_id: user._id.toString(), token: token});   
         }
         const error = new Error('Incorrect Password');
         error.statusCode = 422
