@@ -4,7 +4,6 @@ const NOTES_PER_PAGE = 2;
 
 exports.getNotes = async (req, res, next) => {
     try {
-
         const currentPage = req.query.page || 1;
         const totalDocuments = await Notes.find().countDocuments();
         const totalPages = Math.ceil(totalDocuments/NOTES_PER_PAGE);
@@ -13,7 +12,6 @@ exports.getNotes = async (req, res, next) => {
             .sort({createdAt: -1})
             .skip((currentPage-1)*NOTES_PER_PAGE)
             .limit(NOTES_PER_PAGE);
-            console.log(notes)
         if (!notes) {
             const error = new Error('Notes not found');
             error.statusCode = 404;
