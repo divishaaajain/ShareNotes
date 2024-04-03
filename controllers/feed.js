@@ -12,13 +12,8 @@ exports.getNotes = async (req, res, next) => {
             .sort({createdAt: -1})
             .skip((currentPage-1)*NOTES_PER_PAGE)
             .limit(NOTES_PER_PAGE);
-        if (!notes) {
-            const error = new Error('Notes not found');
-            error.statusCode = 404;
-            throw err;
-        }
         res.status(200).json({
-            message: "Notes retrieved", 
+            message: (notes.length === 0) ? 'No notes' :'Notes retrieved', 
             notes: notes,
             currentPage: currentPage, 
             totalDocuments: totalDocuments,
@@ -43,13 +38,8 @@ exports.searchNotes = async (req, res, next) => {
             .sort({createdAt: -1})
             .skip((currentPage-1)*NOTES_PER_PAGE)
             .limit(NOTES_PER_PAGE);
-        if (!notes) {
-            const error = new Error('Notes not found');
-            error.statusCode = 404;
-            throw error;
-        }
         res.status(200).json({
-            message: "Notes retrieved", 
+            message: (notes.length === 0) ? 'No notes' :'Notes retrieved', 
             notes: notes,
             currentPage: currentPage, 
             totalDocuments: totalDocuments,
