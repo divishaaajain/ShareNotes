@@ -9,6 +9,8 @@ exports.getNotes = async (req, res, next) => {
     try {
         const NOTES_PER_PAGE = 2;
         const currentPage = req.query.page;
+        const totalDocuments = await Notes.find().countDocument();
+        const totalPages = Math.ceil(totalDocuments/NOTES_PER_PAGE);
         const notes = await Notes.find({userId : userId})
             .sort({createdAt: -1})
             .skip((currentPage-1)*NOTES_PER_PAGE)
@@ -18,7 +20,13 @@ exports.getNotes = async (req, res, next) => {
             error.statusCode = 404;
             throw error;
         }
-        return res.status(200).json({message: 'Notes retrieved', notes: notes})
+        return res.status(200).json({
+            message: 'Notes retrieved', 
+            notes: notes, 
+            currentPage: currentPage, 
+            totalDocuments: totalDocuments,
+            totalPages: totalPages
+        });
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;

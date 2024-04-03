@@ -5,6 +5,8 @@ const NOTES_PER_PAGE = 2;
 exports.getNotes = async (req, res, next) => {
     try {
         const currentPage = req.query.page || 1;
+        const totalDocuments = await Notes.find().countDocument();
+        const totalPages = Math.ceil(totalDocuments/NOTES_PER_PAGE);
         const notes = await Notes.find()
             .populate('userId', 'username, imageUrl')
             .sort({createdAt: -1})
@@ -15,7 +17,13 @@ exports.getNotes = async (req, res, next) => {
             error.statusCode = 404;
             throw err;
         }
-        res.status(200).json({message: "Notes retrieved", notes: notes});
+        res.status(200).json({
+            message: "Notes retrieved", 
+            notes: notes,
+            currentPage: currentPage, 
+            totalDocuments: totalDocuments,
+            totalPages: totalPages
+        });
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;
@@ -27,6 +35,8 @@ exports.getNotes = async (req, res, next) => {
 exports.searchNotes = async (req, res, next) => {
     try {
         const currentPage = req.query.page || 1;
+        const totalDocuments = await Notes.find().countDocument();
+        const totalPages = Math.ceil(totalDocuments/NOTES_PER_PAGE);
         const tags = req.body.tags;
         const notes = await Notes.find({tags: {$in: tags}})
             .populate('userId', 'username, imageUrl')
@@ -38,7 +48,13 @@ exports.searchNotes = async (req, res, next) => {
             error.statusCode = 404;
             throw error;
         }
-        res.status(200).json({message: "Notes retrieved", notes: notes});
+        res.status(200).json({
+            message: "Notes retrieved", 
+            notes: notes,
+            currentPage: currentPage, 
+            totalDocuments: totalDocuments,
+            totalPages: totalPages
+        });
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;
