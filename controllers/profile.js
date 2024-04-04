@@ -8,16 +8,11 @@ const io = require('../socket');
 exports.getNotes = async (req, res, next) => {
     try {
         const user_id = req.params.user_id;
-        if(user_id.toString() !== req.user_id){
-            const error = new Error('Unauthorized');
-            error.statusCode = 403;
-            throw error; 
-        }
         const NOTES_PER_PAGE = 2;
-        const currentPage = req.query.page;
+        const currentPage = req.query.page || 1;
         const totalDocuments = await Notes.find().countDocuments();
         const totalPages = Math.ceil(totalDocuments/NOTES_PER_PAGE);
-        const notes = await Notes.find({user_id : user_id}, {"_id": 0, __v: 0})
+        const notes = await Notes.find({user_id : user_id})
             .sort({createdAt: -1})
             .skip((currentPage-1)*NOTES_PER_PAGE)
             .limit(NOTES_PER_PAGE)

@@ -25,6 +25,18 @@ notesSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     }
-}, {timestamps: true});
+}, { toJSON: {  
+        virtuals: true, 
+        transform: function(doc, ret) {
+            delete ret._id; 
+            delete ret.__v;
+        }
+    }, 
+    timestamps: true
+});
+
+notesSchema.virtual('id').get(function() {
+    return this._id;
+});
 
 module.exports = mongoose.model('Note', notesSchema);

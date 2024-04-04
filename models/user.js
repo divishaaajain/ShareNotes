@@ -28,7 +28,19 @@ const userSchema = new mongoose.Schema({
     imageUrl: {
         type: String
     }
-}, {timestamps: true});
+}, { toJSON: {  
+        virtuals: true, 
+        transform: function(doc, ret) {
+            delete ret._id;
+            delete ret.__v;
+        }
+    }, 
+    timestamps: true
+});
+
+userSchema.virtual('id').get(function() {
+    return this._id;
+});
 
 module.exports = mongoose.model('User', userSchema);
 
