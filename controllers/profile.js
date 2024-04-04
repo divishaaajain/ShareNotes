@@ -2,11 +2,17 @@ const {validationResult} = require('express-validator');
 
 const Notes = require('../models/notes');
 const uploadHelper = require('../helpers/upload');
+const io = require('../socket');
 
 
 exports.getNotes = async (req, res, next) => {
-    const user_id = req.params.user_id;
     try {
+        const user_id = req.params.user_id;
+        if(user_id.toString() !== req.user_id){
+            const error = new Error('Unauthorized');
+            error.statusCode = 403;
+            throw error; 
+        }
         const NOTES_PER_PAGE = 2;
         const currentPage = req.query.page;
         const totalDocuments = await Notes.find().countDocuments();
@@ -15,7 +21,7 @@ exports.getNotes = async (req, res, next) => {
             .sort({createdAt: -1})
             .skip((currentPage-1)*NOTES_PER_PAGE)
             .limit(NOTES_PER_PAGE)
-        return res.status(200).json({
+        return res.status(notes.length === 0 ? 404: 200).json({
             message: (notes.length === 0) ? 'No notes' :'Notes retrieved', 
             notes: notes, 
             currentPage: currentPage, 
@@ -46,13 +52,6 @@ exports.postNotes = async (req, res, next) => {
             throw error;
         }
         const tags = req.body.tags;
-        tags.forEach((tag) => {
-            if((!/^#[a-zA-Z0-9]+$/.test(tag)) || (!tag.length>1)){
-                const error = new Error('Tags must start with # followed by only alphabets and/or numbers');
-                error.statusCode = 422;
-                throw error;                                                
-            }
-        });
         const files = req.file.path;
         if(!files){
             const error = new Error('No file provided');
@@ -68,6 +67,7 @@ exports.postNotes = async (req, res, next) => {
         if(!savedNotes) {
             throw new Error();
         }
+        io.emit.getIO().('notes', {action: 'create', notes: savedNotes});
         res.status(201).json({message: "File uploaded successfully", notes: savedNotes, creator: req.user_id});
     } catch (err) {
         if (!err.statusCode) {
@@ -87,13 +87,6 @@ exports.editPost = async (req, res, next) => {
             throw error;
         }
         const tags = req.body.tags;
-        tags.forEach((tag) => {
-            if((!/^#[a-zA-Z0-9]+$/.test(tag)) || (!tag.length>1)){
-                const error = new Error('Tags must start with # followed by only alphabets and/or numbers');
-                error.statusCode = 422;
-                throw error;                                                
-            }
-        });
         const notes_id = req.params.notes_id;
         // only user who created the notes can update them
         const notes = await Notes.findOne({_id: notes_id});
@@ -122,6 +115,7 @@ exports.editPost = async (req, res, next) => {
         if (!updatedNotes) {
             throw err;
         }
+        io.getIO().emit('notes', {action: 'update', notes: updatedNotes});
         return res.status(200).json({message: 'Notes file updated successfully', user_id: notes.user_id.toString(), notes: updatedNotes});
     } catch (err) {
         if(!err.statusCode) {
@@ -132,21 +126,29 @@ exports.editPost = async (req, res, next) => {
 };
 
 exports.deletePost = async (req, res, next) => {
-    const notes_id = req.params.notes_id;
-    const notes = await Notes.findOne({_id: notes_id});
-    if(!notes) {
-        const error = new Error('Notes not found')
-        error.statusCode = 404;
-        throw error;
+    try {
+        const notes_id = req.params.notes_id;
+        const notes = await Notes.findOne({_id: notes_id});
+        if(!notes) {
+            const error = new Error('Notes not found')
+            error.statusCode = 404;
+            throw error;
+        }
+        if(req.user_id !== notes.user_id.toString()) {
+            const error = new Error('Not authorized to perform this action')
+            error.statusCode = 403;
+            throw error;
+        }
+        const result = await Notes.findByIdAndDelete({_id: notes_id});
+        if (!result){
+            throw err;
+        }
+        io.getIO().emit('notes', {action: 'delete', notes: result});
+        res.status(200).json({message: "Notes deleted successfully", notes: result});
+    } catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+            next(err);
+        }
     }
-    if(req.user_id !== notes.user_id.toString()) {
-        const error = new Error('Not authorized to perform this action')
-        error.statusCode = 403;
-        throw error;
-    }
-    const result = await Notes.findByIdAndDelete({_id: notes_id});
-    if (!result){
-        throw err;
-    }
-    res.status(200).json({message: "Notes deleted successfully", notes: result});
 };

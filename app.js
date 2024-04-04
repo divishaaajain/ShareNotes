@@ -30,7 +30,11 @@ app.use((error, req, res, next) => {
 
 mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster1.digrd5x.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}?retryWrites=true&w=majority&appName=Cluster1`)
 .then((connection) => {
-    app.listen(process.env.PORT || 3000);
+    const httpServer = app.listen(process.env.PORT || 3000);
+    const io = require('./socket').init(httpServer);
+    io.on('connection', (socket) => {
+        console.log('Connected to client');
+    });
 })
 .catch((err)=>{
     console.log(err);
