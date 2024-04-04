@@ -67,7 +67,7 @@ exports.postNotes = async (req, res, next) => {
         if(!savedNotes) {
             throw new Error();
         }
-        io.emit.getIO().('notes', {action: 'create', notes: savedNotes});
+        io.getIO().emit('notes', {action: 'create', notes: savedNotes});
         res.status(201).json({message: "File uploaded successfully", notes: savedNotes, creator: req.user_id});
     } catch (err) {
         if (!err.statusCode) {
