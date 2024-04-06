@@ -9,14 +9,13 @@ notesSchema = new mongoose.Schema({
     },
     desciption: {
         type: String,
-        require: true
+        required: true
     },
-    filesUrl: [
-        {
-            type: String,
-            required: true
-        }
-    ],
+    files: [{
+        _id: false,
+        url: { type: String, required: true},
+        public_id : {type: String, required: true}
+    }],
     tags: {
         type: Array
     },

@@ -47,17 +47,28 @@ exports.postNotes = async (req, res, next) => {
             throw error;
         }
         const tags = req.body.tags;
-        const files = req.file.path;
+        const files = req.file;
         if(!files){
             const error = new Error('No file provided');
             error.statusCode = 422;
             throw error;
         }
-        const cloudFile = await uploadHelper.fileUpload(files);
+        const cloudFile = await uploadHelper.fileUpload(files.path);
+        console.log(cloudFile)
+        const url = cloudFile.secure_url;
+        const public_id = cloudFile.public_id;
         const title = req.body.title;
         const description = req.body.description;
-        const filesUrl = cloudFile.secure_url;
-        const notes = new Notes({title: title, desciption: description, tags: tags, filesUrl: filesUrl, user_id: req.user_id});
+        const notes = new Notes({
+            title: title, 
+            desciption: description, 
+            tags: tags, 
+            files: {
+                url: url,
+                public_id: public_id
+            },
+            user_id: req.user_id
+        });
         const savedNotes = await notes.save();
         if(!savedNotes) {
             throw new Error();
@@ -92,13 +103,16 @@ exports.editPost = async (req, res, next) => {
         }
         const title = req.body.title;
         const description = req.body.description;
-        let filesUrl = req.body.files;
-        const files = req.file.path;
-        if(files){
-            const cloudFile = await uploadHelper.fileUpload(files);
-            filesUrl = cloudFile.secure_url;
+        let files = notes.files;
+        const newFiles = req.file;
+        if(newFiles){
+            const cloudFile = await uploadHelper.fileUpload(files.path);
+            files = {
+                url: cloudFile.secure_url,
+                public_id: cloudFile.public_id
+            }
         }
-        if(!filesUrl){
+        if(!files){
             const error = new Error('No file provided');
             error.statusCode = 422;
             throw error;
@@ -134,10 +148,14 @@ exports.deletePost = async (req, res, next) => {
             error.statusCode = 403;
             throw error;
         }
+        // const files = "folder/sample/"+notes.files[0].public_id+".pdf";
+        // console.log("1",files)
         const result = await Notes.findByIdAndDelete({_id: notes_id});
         if (!result){
             throw err;
         }
+        // const deleteResult = await uploadHelper.deleteFile(files);
+        // console.log(deleteResult);
         io.getIO().emit('notes', {action: 'delete', notes: result});
         res.status(200).json({message: "Notes deleted successfully", notes: result});
     } catch (err) {

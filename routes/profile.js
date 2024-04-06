@@ -29,13 +29,6 @@ router.post('/notes/:user_id', isAuth, [
     body('tags', 'Tags must start with # followed by only alphabets and/or numbers')
         .trim()
         .isArray()
-        .custom((tags, {req}) => {
-            const uniqueTags = new Set(tags);
-            if (uniqueTags.size !== tags.length) {
-                return Promise.reject('Tags must not be repeated');
-            }
-            return Promise.resolve();
-        })
 ], profileController.postNotes);
 
 // User can update his post
@@ -57,13 +50,6 @@ router.put('/notes/:notes_id', isAuth, [
     body('tags', 'Tags must start with # followed by only alphabets and/or numbers')
         .trim()
         .isArray()
-        .custom((tags, {req}) => {
-            const uniqueTags = new Set(tags);
-            if (uniqueTags.size !== tags.length) {
-                return Promise.reject('Tags must not be repeated');
-            }
-            return Promise.resolve();
-        })
 ], profileController.editPost);
 
 router.delete('/notes/:notes_id', isAuth, profileController.deletePost);

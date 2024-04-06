@@ -16,6 +16,21 @@ const fileUpload = async (filePath) => {
     } catch (err) {
         throw err;
     }
+};
+
+const deleteFile = async (public_id) => {
+    try {
+        const result = await cloudinary.uploader.destroy(public_id, {
+            resource_type: 'raw',
+            invalidate: true
+        });
+        if (result) {
+            return result;
+        }
+        throw err;
+    } catch (err) {
+        throw err;
+    }
 }
 
-module.exports = {fileUpload};
+module.exports = {fileUpload, deleteFile};
