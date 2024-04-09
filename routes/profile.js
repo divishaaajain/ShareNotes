@@ -10,6 +10,8 @@ const router = express.Router();
 // User can get all his posts
 router.get('/notes/:user_id', isAuth, profileController.getNotes);
 
+router.get('/:notes_id', isAuth, profileController.getSingleNotes);
+
 // User can add a new post
 router.post('/notes/:user_id', isAuth, [
     body('title', 'Title must be between 3 to 30 characters')
@@ -53,5 +55,7 @@ router.put('/notes/:notes_id', isAuth, [
 ], profileController.editPost);
 
 router.delete('/notes/:notes_id', isAuth, profileController.deletePost);
+
+router.get('/follow/:followedTo_id', isAuth, profileController.follow);
 
 module.exports = router;

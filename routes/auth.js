@@ -14,7 +14,7 @@ router.post('/signup', [
         .withMessage('Invalid email')
         .custom(async (value, {req}) => {
             // console.log(req);
-            const user = await User.findOne({ email: value });
+            const user = await User.findOne({ where: {email: value} });
             if (user) {
                 return Promise.reject('Email already exists!');
             }
@@ -32,7 +32,7 @@ router.post('/signup', [
         .isLength({min: 3, max: 10})
         .withMessage('Username should be between 3 to 20 letters')
         .custom(async (value, {req})=>{
-            const user = await User.findOne({ username: value });
+            const user = await User.findOne({ where: {username: value} });
             if (user) {
                 return Promise.reject('Username already taken!');
             }

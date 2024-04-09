@@ -20,8 +20,7 @@ notesSchema = new mongoose.Schema({
         type: Array
     },
     user_id: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
+        type: String,
         required: true
     }
 }, { toJSON: {  
