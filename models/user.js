@@ -1,46 +1,92 @@
-const mongoose = require('mongoose');
+const Sequelize = require('sequelize');
 
-const Schema = mongoose.Schema;
+const sequelize = require('../util/database');
 
-const userSchema = new mongoose.Schema({
+const User = sequelize.define('user', {
+    user_id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true
+    },
     email: {
-        type: String,
+        type: Sequelize.STRING,
         required: true,
+        allowNull: false,
         unique: true
     },
     fullname: {
-        type: String,
-        required: true
+        type: Sequelize.STRING,
+        required: true,
+        allowNull: false,
     },
     username: {
-        type: String,
+        type: Sequelize.STRING,
         required: true,
+        allowNull: false,
         unique: true
     },
     password: {
-        type: String,
-        required: true
+        type: Sequelize.STRING,
+        required: true,
+        allowNull: false,
     },
     DOB: {
-        type: Date,
-        require: true
-    }, 
+        type: Sequelize.DATE,
+        allowNull: false,
+        required: true
+    },
     imageUrl: {
-        type: String
-    }
-}, { toJSON: {  
-        virtuals: true, 
-        transform: function(doc, ret) {
-            delete ret._id;
-            delete ret.__v;
-        }
-    }, 
-    timestamps: true
-});
+        type: Sequelize.STRING,
+    }   
+}, { timestamps: true });
 
-userSchema.virtual('id').get(function() {
-    return this._id;
-});
+module.exports = User;
 
-module.exports = mongoose.model('User', userSchema);
+
+// const mongoose = require('mongoose');
+
+// const Schema = mongoose.Schema;
+
+// const userSchema = new mongoose.Schema({
+//     email: {
+//         type: String,
+//         required: true,
+//         unique: true
+//     },
+//     fullname: {
+//         type: String,
+//         required: true
+//     },
+//     username: {
+//         type: String,
+//         required: true,
+//         unique: true
+//     },
+//     password: {
+//         type: String,
+//         required: true
+//     },
+//     DOB: {
+//         type: Date,
+//         require: true
+//     }, 
+//     imageUrl: {
+//         type: String
+//     }
+// }, { toJSON: {  
+//         virtuals: true, 
+//         transform: function(doc, ret) {
+//             delete ret._id;
+//             delete ret.__v;
+//         }
+//     }, 
+//     timestamps: true
+// });
+
+// userSchema.virtual('id').get(function() {
+//     return this._id;
+// });
+
+// module.exports = mongoose.model('User', userSchema);
 

@@ -26,7 +26,7 @@ exports.postSignup = async (req, res, next) => {
         const fullname = req.body.fullname;
         const DOB = req.body.DOB;
         const hashedPassword = await bcrypt.hash(password, 12);
-        const user = new User({
+        const savedUser = await User.create({
             email: email, 
             password: hashedPassword, 
             username: username, 
@@ -34,11 +34,13 @@ exports.postSignup = async (req, res, next) => {
             DOB: DOB, 
             imageUrl: imageUrl 
         });
-        const savedUser = await user.save();
         if (!savedUser) {
             next(new Error('Failed to signup'));
         }
-        return res.status(201).json({ message: "Signed up successfully", user_id: savedUser._id.toString() });
+        return res.status(201).json({
+            message: "Signed up successfully", 
+            user_id: savedUser.user_id.toString()
+        });
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;
@@ -52,7 +54,7 @@ exports.postLogin = async (req, res, next) => {
     const password = req.body.password;
 
     try {
-        const user = await User.findOne({email: email});
+        const user = await User.findOne({where: {email: email}});
         if(!user){
             const error = new Error('Enter a valid email address');
             error.statusCode = 404
@@ -62,11 +64,15 @@ exports.postLogin = async (req, res, next) => {
         if (result) {
             const token = jwt.sign({
                 email: user.email,
-                user_id: user._id.toString()
+                user_id: user.user_id.toString()
             }, `${process.env.JWT_PRIVATE_KEY}`, {
                 expiresIn: '1h'
             });
-            return res.status(200).json({message: "User logged in", user_id: user._id.toString(), token: token});   
+            return res.status(200).json({
+                message: "User logged in", 
+                user_id: user.user_id.toString(), 
+                token: token
+            });    
         }
         const error = new Error('Incorrect Password');
         error.statusCode = 422

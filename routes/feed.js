@@ -9,6 +9,6 @@ const router = express.Router();
 // To get all notes of all users
 router.get('/:user_id', isAuth, feedController.getNotes);
 
-router.post('/search-notes', isAuth, feedController.searchNotes);
+router.post('/search-notes/:user_id', isAuth, feedController.searchNotes);
 
 module.exports = router;
