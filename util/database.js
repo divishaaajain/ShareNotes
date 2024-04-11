@@ -2,7 +2,8 @@ const Sequelize = require('sequelize');
 
 const sequelize = new Sequelize(`${process.env.MYSQL_DATABASE}`, `${process.env.MYSQL_USERNAME}`, `${process.env.MYSQL_PASSWORD}`, {
     dialect: "mysql",
-    host: "localhost"
+    host: "0.0.0.0",
+    port: `${process.env.MYSQL_PORT}`
 });
 
 sequelize.authenticate()
